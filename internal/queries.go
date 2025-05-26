@@ -13,6 +13,10 @@ type DBModel struct {
 	DB *sql.DB
 }
 
+func NewDBModel(db *sql.DB) DBModel {
+	return DBModel{DB: db}
+}
+
 func (m DBModel) GetDbValues(day, month int) (*DBValues, error) {
 	query := `
 		SELECT m.name, m.meaning, d.name, dm.dedication
