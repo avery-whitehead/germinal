@@ -4,44 +4,46 @@ import (
 	"fmt"
 	"testing"
 	"time"
+
+	"github.com/rickb777/date"
 )
 
 func TestToRepublican(t *testing.T) {
 	var tests = []struct {
-		date   time.Time
+		date   date.Date
 		expect *RepublicanDate
 	}{
-		{time.Date(2025, time.January, 1, 0, 0, 0, 0, time.UTC),
+		{date.New(2025, time.January, 1),
 			&RepublicanDate{
 				Year:     233,
 				DayOrd:   12,
 				MonthOrd: 4,
 			}},
-		{time.Date(2024, time.May, 25, 0, 0, 0, 0, time.UTC),
+		{date.New(2024, time.May, 25),
 			&RepublicanDate{
 				Year:     232,
 				DayOrd:   7,
 				MonthOrd: 9,
 			}},
-		{time.Date(1792, time.September, 22, 0, 0, 0, 0, time.UTC),
+		{date.New(1792, time.September, 22),
 			&RepublicanDate{
 				Year:     1,
 				DayOrd:   1,
 				MonthOrd: 1,
 			}},
-		{time.Date(2024, time.September, 18, 0, 0, 0, 0, time.UTC),
+		{date.New(2024, time.September, 18),
 			&RepublicanDate{
 				Year:     232,
 				DayOrd:   3,
 				MonthOrd: 13,
 			}},
-		{time.Date(2023, time.September, 18, 0, 0, 0, 0, time.UTC),
+		{date.New(2023, time.September, 18),
 			&RepublicanDate{
 				Year:     231,
 				DayOrd:   2,
 				MonthOrd: 13,
 			}},
-		{time.Date(9999, time.December, 31, 0, 0, 0, 0, time.UTC),
+		{date.New(9999, time.December, 31),
 			&RepublicanDate{
 				Year:     8208,
 				DayOrd:   11,
@@ -62,11 +64,11 @@ func TestToRepublican(t *testing.T) {
 
 func TestToRepublicanErrors(t *testing.T) {
 	var tests = []struct {
-		date   time.Time
+		date   date.Date
 		expect error
 	}{
-		{time.Date(1792, time.September, 21, 0, 0, 0, 0, time.UTC), ErrBeforeCalendar},
-		{time.Date(10000, time.January, 1, 0, 0, 0, 0, time.UTC), ErrDateTooHigh},
+		{date.New(1792, time.September, 21), ErrBeforeCalendar},
+		{date.New(10000, time.January, 1), ErrDateTooHigh},
 	}
 
 	for _, tt := range tests {

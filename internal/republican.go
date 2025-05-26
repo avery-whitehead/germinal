@@ -4,11 +4,13 @@ import (
 	"errors"
 	"slices"
 	"time"
+
+	"github.com/rickb777/date"
 )
 
 var (
-	RepublicEraStart = time.Date(1792, time.September, 22, 0, 0, 0, 0, time.UTC)
-	RepublicEraEnd   = time.Date(1811, time.September, 23, 0, 0, 0, 0, time.UTC)
+	RepublicEraStart = date.New(1792, time.September, 22)
+	MaxAllowedDate   = date.New(9999, time.December, 31)
 
 	ErrBeforeCalendar = errors.New("date is before year one of the republic")
 	ErrDateTooHigh    = errors.New("date is after the year 9999")
@@ -26,16 +28,16 @@ type RepublicanDate struct {
 }
 
 // Converts a Gregorian (ISO) date to its Republican equivalent
-func toRepublican(date time.Time) (*RepublicanDate, error) {
+func toRepublican(date date.Date) (*RepublicanDate, error) {
 	if date.Before(RepublicEraStart) {
 		return nil, ErrBeforeCalendar
 	}
 
-	if date.After(time.Date(9999, time.December, 31, 0, 0, 0, 0, time.UTC)) {
+	if date.After(MaxAllowedDate) {
 		return nil, ErrDateTooHigh
 	}
 
-	delta := (date.Sub(RepublicEraStart).Hours() / 24) + 1
+	delta := date.Sub(RepublicEraStart)
 
 	year, start := 1, 1
 
@@ -50,7 +52,7 @@ func toRepublican(date time.Time) (*RepublicanDate, error) {
 			end = start + 364
 		}
 
-		if end >= int(delta) {
+		if end >= int(delta+1) {
 			break
 		}
 
@@ -61,7 +63,7 @@ func toRepublican(date time.Time) (*RepublicanDate, error) {
 	var repubDate RepublicanDate
 	repubDate.Year = year
 
-	dayInYear := int(delta) - start
+	dayInYear := int(delta+1) - start
 	// Each month is 30 days
 	repubDate.MonthOrd = (dayInYear / 30) + 1
 	repubDate.DayOrd = (dayInYear % 30) + 1
