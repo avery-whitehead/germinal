@@ -1,6 +1,9 @@
 package main
 
-import _ "github.com/jackc/pgx"
+import (
+	"github.com/avery-whitehead/germinal/internal"
+	_ "github.com/jackc/pgx"
+)
 
 type config struct {
 	port int
@@ -11,6 +14,7 @@ type config struct {
 
 type application struct {
 	config config
+	db     internal.DBModel
 }
 
 func main() {

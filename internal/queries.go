@@ -13,7 +13,7 @@ type DBModel struct {
 	DB *sql.DB
 }
 
-func (m DBModel) Get(day, month int) (*DBValues, error) {
+func (m DBModel) GetDbValues(day, month int) (*DBValues, error) {
 	query := `
 		SELECT m.name, m.meaning, d.name, dm.dedication
 		FROM days_months dm

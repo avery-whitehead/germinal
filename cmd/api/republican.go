@@ -1,4 +1,4 @@
-package internal
+package main
 
 import (
 	"errors"
@@ -27,8 +27,14 @@ type RepublicanDate struct {
 	Dedication string
 }
 
+type DayMonthYear struct {
+	DayOrd   int
+	MonthOrd int
+	Year     int
+}
+
 // Converts a Gregorian (ISO) date to its Republican equivalent
-func toRepublican(date date.Date) (*RepublicanDate, error) {
+func (app *application) toRepublican(date date.Date) (*RepublicanDate, error) {
 	if date.Before(RepublicEraStart) {
 		return nil, ErrBeforeCalendar
 	}
@@ -37,6 +43,26 @@ func toRepublican(date date.Date) (*RepublicanDate, error) {
 		return nil, ErrDateTooHigh
 	}
 
+	dateValues := getDayMonthYear(date)
+
+	// Get string values from database
+	dbValues, err := app.db.GetDbValues(dateValues.DayOrd, dateValues.MonthOrd)
+	if err != nil {
+		return nil, err
+	}
+
+	return &RepublicanDate{
+		Year:       dateValues.Year,
+		Month:      dbValues.Month,
+		MonthOf:    dbValues.MonthOf,
+		MonthOrd:   dateValues.MonthOrd,
+		Day:        dbValues.Day,
+		DayOrd:     dateValues.DayOrd,
+		Dedication: dbValues.Dedication,
+	}, nil
+}
+
+func getDayMonthYear(date date.Date) *DayMonthYear {
 	delta := date.Sub(RepublicEraStart)
 
 	year, start := 1, 1
@@ -60,15 +86,14 @@ func toRepublican(date date.Date) (*RepublicanDate, error) {
 		start = end + 1
 	}
 
-	var repubDate RepublicanDate
-	repubDate.Year = year
-
 	dayInYear := int(delta+1) - start
-	// Each month is 30 days
-	repubDate.MonthOrd = (dayInYear / 30) + 1
-	repubDate.DayOrd = (dayInYear % 30) + 1
 
-	return &repubDate, nil
+	return &DayMonthYear{
+		// Each month is 30 days
+		MonthOrd: (dayInYear / 30) + 1,
+		DayOrd:   (dayInYear % 30) + 1,
+		Year:     year,
+	}
 }
 
 // Returns true if the given Republican year is a leap year

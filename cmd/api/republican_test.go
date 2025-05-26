@@ -1,4 +1,4 @@
-package internal
+package main
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"github.com/rickb777/date"
 )
 
-func TestToRepublican(t *testing.T) {
+func (app *application) TestGetDayMonthYear(t *testing.T) {
 	var tests = []struct {
 		date   date.Date
 		expect *RepublicanDate
@@ -54,29 +54,9 @@ func TestToRepublican(t *testing.T) {
 	for _, tt := range tests {
 		testname := tt.date.UTC().String()
 		t.Run(testname, func(t *testing.T) {
-			ans, _ := toRepublican(tt.date)
+			ans := getDayMonthYear(tt.date)
 			if ans.DayOrd != tt.expect.DayOrd || ans.MonthOrd != tt.expect.MonthOrd || ans.Year != tt.expect.Year {
 				t.Errorf("got %+v, expected %+v", ans, tt.expect)
-			}
-		})
-	}
-}
-
-func TestToRepublicanErrors(t *testing.T) {
-	var tests = []struct {
-		date   date.Date
-		expect error
-	}{
-		{date.New(1792, time.September, 21), ErrBeforeCalendar},
-		{date.New(10000, time.January, 1), ErrDateTooHigh},
-	}
-
-	for _, tt := range tests {
-		testname := tt.date.UTC().String()
-		t.Run(testname, func(t *testing.T) {
-			_, err := toRepublican(tt.date)
-			if err != tt.expect {
-				t.Errorf("got %s, expected %s", err, tt.expect)
 			}
 		})
 	}
