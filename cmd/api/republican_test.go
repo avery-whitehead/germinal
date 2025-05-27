@@ -90,3 +90,24 @@ func TestIsLeapyear(t *testing.T) {
 		})
 	}
 }
+
+func TestYearToRoman(t *testing.T) {
+	var tests = []struct {
+		year   int
+		expect string
+	}{
+		{2025, "MMXXV"},
+		{1, "I"},
+		{3999, "MMMCMXCIX"},
+	}
+
+	for _, tt := range tests {
+		testname := fmt.Sprintf("%d", tt.year)
+		t.Run(testname, func(t *testing.T) {
+			ans := yearToRoman(tt.year)
+			if ans != tt.expect {
+				t.Errorf("got %s, expected %s", ans, tt.expect)
+			}
+		})
+	}
+}

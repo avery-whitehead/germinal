@@ -14,23 +14,45 @@ var (
 
 	ErrBeforeCalendar = errors.New("date is before year one of the republic")
 	ErrDateTooHigh    = errors.New("date is after the year 9999")
+
+	KnownLeapYears = []int{3, 7, 11, 15}
+	RomanNumerals  = []roman{
+		{1000, "M"},
+		{900, "CM"},
+		{500, "D"},
+		{400, "CD"},
+		{100, "C"},
+		{90, "XC"},
+		{50, "L"},
+		{40, "XL"},
+		{10, "X"},
+		{9, "IX"},
+		{5, "V"},
+		{4, "IV"},
+		{1, "I"},
+	}
 )
 
 type RepublicanDate struct {
-	Year       int
-	YearRoman  string
-	Month      string
-	MonthOf    string
-	MonthOrd   int
-	Day        string
-	DayOrd     int
-	Dedication string
+	Year       int    `json:"year"`
+	YearRoman  string `json:"yearRoman"`
+	Month      string `json:"month"`
+	MonthOf    string `json:"monthOf"`
+	MonthOrd   int    `json:"monthOrd"`
+	Day        string `json:"day"`
+	DayOrd     int    `json:"dayOrd"`
+	Dedication string `json:"dedication"`
 }
 
 type DayMonthYear struct {
 	DayOrd   int
 	MonthOrd int
 	Year     int
+}
+
+type roman struct {
+	number int
+	value  string
 }
 
 // Converts a Gregorian (ISO) date to its Republican equivalent
@@ -53,6 +75,7 @@ func (app *application) toRepublican(date date.Date) (*RepublicanDate, error) {
 
 	return &RepublicanDate{
 		Year:       dateValues.Year,
+		YearRoman:  yearToRoman(dateValues.Year),
 		Month:      dbValues.Month,
 		MonthOf:    dbValues.MonthOf,
 		MonthOrd:   dateValues.MonthOrd,
@@ -114,4 +137,20 @@ func isLeapYear(year int) bool {
 		return true
 	}
 	return false
+}
+
+func yearToRoman(year int) string {
+	if year >= 4000 {
+		return "-"
+	}
+	var result string
+
+	for _, v := range RomanNumerals {
+		for year >= v.number {
+			result += v.value
+			year = year - v.number
+		}
+	}
+
+	return result
 }
