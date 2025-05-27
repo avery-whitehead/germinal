@@ -8,7 +8,7 @@ import (
 	"github.com/rickb777/date"
 )
 
-func (app *application) TestGetDayMonthYear(t *testing.T) {
+func TestGetDayMonthYear(t *testing.T) {
 	var tests = []struct {
 		date   date.Date
 		expect *RepublicanDate

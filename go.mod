@@ -27,6 +27,7 @@ require (
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/pgx/v5 v5.7.5 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
+	github.com/julienschmidt/httprouter v1.3.0 // indirect
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rickb777/plural v1.4.4 // indirect

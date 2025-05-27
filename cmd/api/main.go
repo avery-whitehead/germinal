@@ -4,27 +4,21 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log/slog"
 	"net"
+	"net/http"
 	"os"
-	"time"
+	"strconv"
 
 	"cloud.google.com/go/cloudsqlconn"
 	"github.com/avery-whitehead/germinal/internal"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/stdlib"
-	"github.com/rickb777/date"
 )
 
-type config struct {
-	port int
-	db   struct {
-		dsn string
-	}
-}
-
 type application struct {
-	config config
 	db     internal.DBModel
+	logger *slog.Logger
 }
 
 func main() {
@@ -33,9 +27,38 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	app := application{db: internal.NewDBModel(db)}
-	repub, _ := app.toRepublican(date.New(2025, time.May, 26))
-	fmt.Printf("%+v\n", repub)
+
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+
+	app := application{
+		db:     internal.NewDBModel(db),
+		logger: logger,
+	}
+
+	port, err := strconv.Atoi(os.Getenv("GM_PORT"))
+	if port == 0 || err != nil {
+		port = 8080
+	}
+
+	if err = app.serve(port); err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+}
+
+func (app *application) serve(port int) error {
+	srv := &http.Server{
+		Addr:    fmt.Sprintf(":%d", port),
+		Handler: app.routes(),
+	}
+
+	app.logger.Info("starting server", "addr", srv.Addr)
+	err := srv.ListenAndServe()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func connectWithConnector() (*sql.DB, error) {
